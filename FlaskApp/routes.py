@@ -6,35 +6,30 @@ from flask import render_template, redirect, url_for, request
 from fylesdk import FyleSDK
 
 from FlaskApp import app
-from FlaskApp import fyle_connection
+from FlaskApp.connectors.fyle import FyleConnector
 
 # Necessary URLs and Client Id and Client Secret
-
-
 REDIRECT_URI = os.environ.get("REDIRECT_URL")
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 BASE_URL = os.environ.get("BASE_URL")
-#AUTHORIZE_URL = "".format(BASE_URL)
 AUTHORIZE_URL = "{0}/app/main/#/oauth/authorize?client_id={1}&redirect_uri={2}&response_type=code&state=ajsfbjak".format(
     BASE_URL, CLIENT_ID, REDIRECT_URI)
 TOKEN_URL = '{0}/api/oauth/token'.format(BASE_URL)
 
 
-# Make authorization
-
-@app.route('/authorize', methods=['POST'])
-def authorize():
-    return redirect(AUTHORIZE_URL, code=302)
-
 # Index/home page
-
-
 @app.route('/')
 @app.route('/login')
 def login():
     error = None
     return render_template('welcome.html', error=error)
+
+
+# Make authorization
+@app.route('/authorize', methods=['POST'])
+def authorize():
+    return redirect(AUTHORIZE_URL, code=302)
 
 
 '''Displaying Employee profile details 
@@ -57,8 +52,7 @@ def profile():
                                                        "code": code})
         data = json.loads(json_response.text)
         refresh_token = data.get("refresh_token")
-        fyle_connection = fyle_connection.FyleConnector(
-            BASE_URL, CLIENT_ID, CLIENT_SECRET, refresh_token)
-        emp_details = fyle_connection.emp_details()
+        fyle_connection = FyleConnector(refresh_token)
+        emp_details = fyle_connection.get_employee_details()
         return render_template('profile.html', emp_data=emp_details)
     return redirect(url_for('login'))
