@@ -1,12 +1,11 @@
 import os
 from flask import Flask,render_template,redirect,url_for,request
-import requests
+from fylesdk import FyleSDK
+from FlaskApp import app
 import json
-from fylesdk import FyleSDK 
+import requests
 
 
-
-app = Flask(__name__)
 
 # Necessary URLs and Client Id and Client Secret
 
@@ -17,7 +16,12 @@ BASE_URL="https://staging.fyle.in/app/main/#/oauth/authorize?"
 APP_URL=BASE_URL+"client_id="+CLIENT_ID+"&redirect_uri="+REDIRECT_URL+"&response_type=code&state=ajsfbjak"
 ENDPOINT = 'https://staging.fyle.in/api/oauth/token' 
 
-@app.route('/' ,methods=['GET', 'POST'])
+#Home/index route, Only Accepts GET and POST method
+#For GET method it redirects home Page (welcome.html)
+#For POST method , it redirects APP_URL, with code 302
+
+@app.route('/',methods=['GET','POST'])
+@app.route('/home' ,methods=['GET', 'POST'])
 def login():
     error = None
     if request.method == 'POST':
@@ -43,11 +47,10 @@ def profile():
                                         "client_secret": CLIENT_SECRET,
                                         "code":Code})
         data=json.loads(Json_Response.text)
-        #print("refresh tokes:  ")
         RefreshToken=data.get("refresh_token")
         emp_details=get_profile_details(RefreshToken)
         return render_template('profile.html',emp_data=emp_details)
-    return render_template('welcome.html',error=error)
+    return redirect(url_for('login'))
 
 
 
@@ -68,9 +71,4 @@ def get_profile_details(theRefrshToken):
     return employee_data.get('data')
 
 
-
-
-if __name__ == "__main__":
-   app.run(host=os.getenv('IP', '127.0.0.1'), 
-            port=int(os.getenv('PORT', 8080)),debug=True)
 
