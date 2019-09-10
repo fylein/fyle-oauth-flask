@@ -31,8 +31,7 @@ def login():
 '''Displaying Employee profile details 
    If User allow to fetch Employee profile details We will get Code,error will be null
    If User deny to fetch Employee profile details We will get an error(access denied ) , Code will be null
-   If User deny to fetch Employee profile details , He/She will be redirected to Home page(welcome.html)
-   with reason(s) displying on page '''
+   If User deny to fetch Employee profile details , He/She will be redirected to Home page(welcome.html) '''
 
 @app.route('/profile',methods=['GET'])
 def profile():
