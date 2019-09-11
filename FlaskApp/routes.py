@@ -56,7 +56,6 @@ def profile():
     if REFRESH_TOKEN:
         fyle_connection = FyleConnector(REFRESH_TOKEN)
         emp_details = fyle_connection.get_employee_details()
-        # REFRESH_TOKEN=""
         return render_template('profile.html', emp_data=emp_details)
     return redirect(url_for('login'))
 
