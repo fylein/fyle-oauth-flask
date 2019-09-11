@@ -9,8 +9,8 @@ from FlaskApp import app
 from FlaskApp.connectors.fyle import FyleConnector
 
 # Necessary URLs and Client Id and Client Secret
-REDIRECT_URI ="http://localhost:8080/refresh_token"
-REFRESH_TOKEN=""
+REDIRECT_URI = "http://localhost:8080/refresh_token"
+REFRESH_TOKEN = ""
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 BASE_URL = os.environ.get("BASE_URL")
@@ -20,28 +20,27 @@ TOKEN_URL = '{0}/api/oauth/token'.format(BASE_URL)
 
 
 # Index/home page
-#Login page 
+# Login page
 @app.route('/')
-@app.route('/login',methods=['GET'])
+@app.route('/login', methods=['GET'])
 def login():
     error = None
     return render_template('welcome.html', error=error)
 
 
-#Make authorization
-@app.route('/login',methods=['POST'])
+# Make authorization
+@app.route('/login', methods=['POST'])
 def authorize():
     return redirect(AUTHORIZE_URL, code=302)
 
 
-#Logout endpoint 
-@app.route('/logout',methods=['POST'])
+# Logout endpoint
+@app.route('/logout', methods=['POST'])
 def logout():
-     global REFRESH_TOKEN
-     if request.method == 'POST':
-        REFRESH_TOKEN=""
-     return redirect(url_for('login'))
-
+    global REFRESH_TOKEN
+    if request.method == 'POST':
+        REFRESH_TOKEN = ""
+    return redirect(url_for('login'))
 
 
 '''Displaying Employee profile details 
@@ -59,14 +58,14 @@ def profile():
         return render_template('profile.html', emp_data=emp_details)
     return redirect(url_for('login'))
 
-# To get Refresh Token 
-@app.route('/refresh_token',methods=['GET'])
+# To get Refresh Token
+@app.route('/refresh_token', methods=['GET'])
 def get_refresh_token():
     global CLIENT_SECRET
     global REFRESH_TOKEN
     global CLIENT_ID
     error = None
-    code = None 
+    code = None
     error = request.args.get('error')
     code = request.args.get('code')
     if code:
@@ -77,6 +76,3 @@ def get_refresh_token():
         data = json.loads(json_response.text)
         REFRESH_TOKEN = data.get("refresh_token")
     return redirect(url_for('profile'))
-
-
-    
