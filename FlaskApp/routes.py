@@ -9,13 +9,11 @@ from FlaskApp import app
 from FlaskApp.connectors.fyle import FyleConnector
 
 # Necessary URLs and Client Id and Client Secret
-REDIRECT_URI = "http://localhost:8080/refresh_token"
+
 REFRESH_TOKEN = ""
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 BASE_URL = os.environ.get("BASE_URL")
-AUTHORIZE_URL = "{0}/app/main/#/oauth/authorize?client_id={1}&redirect_uri={2}&response_type=code&state=ajsfbjak".format(
-    BASE_URL, CLIENT_ID, REDIRECT_URI)
 TOKEN_URL = '{0}/api/oauth/token'.format(BASE_URL)
 
 
@@ -28,9 +26,15 @@ def login():
     return render_template('welcome.html', error=error)
 
 
+# Making Authorize_url
 # Make authorization
 @app.route('/login', methods=['POST'])
 def authorize():
+    global BASE_URL
+    global CLIENT_ID
+    REDIRECT_URI = request.url_root + "oauth_callback"
+    AUTHORIZE_URL = "{0}/app/main/#/oauth/authorize?client_id={1}&redirect_uri={2}&response_type=code&state=ajsfbjak".format(
+        BASE_URL, CLIENT_ID, REDIRECT_URI)
     return redirect(AUTHORIZE_URL, code=302)
 
 
@@ -59,7 +63,7 @@ def profile():
     return redirect(url_for('login'))
 
 # To get Refresh Token
-@app.route('/refresh_token', methods=['GET'])
+@app.route('/oauth_callback', methods=['GET'])
 def get_refresh_token():
     global CLIENT_SECRET
     global REFRESH_TOKEN
@@ -68,7 +72,7 @@ def get_refresh_token():
     code = None
     error = request.args.get('error')
     code = request.args.get('code')
-    if code:
+    if code and error is None:
         json_response = requests.post(TOKEN_URL, data={"grant_type": "authorization_code",
                                                        "client_id": CLIENT_ID,
                                                        "client_secret": CLIENT_SECRET,
