@@ -32,10 +32,10 @@ def login():
 def authorize():
     global BASE_URL
     global CLIENT_ID
-    REDIRECT_URI = request.url_root + "oauth_callback"
-    AUTHORIZE_URL = "{0}/app/main/#/oauth/authorize?client_id={1}&redirect_uri={2}&response_type=code&state=ajsfbjak".format(
-        BASE_URL, CLIENT_ID, REDIRECT_URI)
-    return redirect(AUTHORIZE_URL, code=302)
+    redirect_uri = request.url_root + "oauth_callback"
+    authorize_url = "{0}/app/main/#/oauth/authorize?client_id={1}&redirect_uri={2}&response_type=code&state=ajsfbjak".format(
+        BASE_URL, CLIENT_ID, redirect_uri)
+    return redirect(authorize_url, code=302)
 
 
 # Logout endpoint
