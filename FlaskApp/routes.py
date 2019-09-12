@@ -22,7 +22,10 @@ TOKEN_URL = '{0}/api/oauth/token'.format(BASE_URL)
 @app.route('/')
 @app.route('/login', methods=['GET'])
 def login():
+    global REFRESH_TOKEN
     error = None
+    if REFRESH_TOKEN:
+        return redirect(url_for('profile'))
     return render_template('welcome.html', error=error)
 
 
