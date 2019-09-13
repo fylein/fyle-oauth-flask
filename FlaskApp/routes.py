@@ -10,7 +10,6 @@ from FlaskApp.connectors.fyle import FyleConnector
 
 # Necessary URLs and Client Id and Client Secret
 
-REFRESH_TOKEN = ""
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 BASE_URL = os.environ.get("BASE_URL")
@@ -22,10 +21,7 @@ TOKEN_URL = '{0}/api/oauth/token'.format(BASE_URL)
 @app.route('/')
 @app.route('/login', methods=['GET'])
 def login():
-    global REFRESH_TOKEN
     error = None
-    if REFRESH_TOKEN:
-        return redirect(url_for('profile'))
     return render_template('welcome.html', error=error)
 
 
@@ -35,18 +31,16 @@ def login():
 def authorize():
     global BASE_URL
     global CLIENT_ID
-    redirect_uri = request.url_root + "oauth_callback"
+    redirect_uri = request.url_root + "profile"
     authorize_url = "{0}/app/main/#/oauth/authorize?client_id={1}&redirect_uri={2}&response_type=code&state=ajsfbjak".format(
         BASE_URL, CLIENT_ID, redirect_uri)
     return redirect(authorize_url, code=302)
 
 
+
 # Logout endpoint
 @app.route('/logout', methods=['POST'])
 def logout():
-    global REFRESH_TOKEN
-    if request.method == 'POST':
-        REFRESH_TOKEN = ""
     return redirect(url_for('login'))
 
 
@@ -58,18 +52,7 @@ def logout():
 
 @app.route('/profile', methods=['GET'])
 def profile():
-    global REFRESH_TOKEN
-    if REFRESH_TOKEN:
-        fyle_connection = FyleConnector(REFRESH_TOKEN)
-        emp_details = fyle_connection.get_employee_details()
-        return render_template('profile.html', emp_data=emp_details)
-    return redirect(url_for('login'))
-
-# To get Refresh Token
-@app.route('/oauth_callback', methods=['GET'])
-def get_refresh_token():
     global CLIENT_SECRET
-    global REFRESH_TOKEN
     global CLIENT_ID
     error = None
     code = None
@@ -81,5 +64,14 @@ def get_refresh_token():
                                                        "client_secret": CLIENT_SECRET,
                                                        "code": code})
         data = json.loads(json_response.text)
-        REFRESH_TOKEN = data.get("refresh_token")
-    return redirect(url_for('profile'))
+        refresh_token = data.get("refresh_token")
+        fyle_connection = FyleConnector(refresh_token)
+        emp_details = fyle_connection.get_employee_details()
+        return render_template('profile.html', emp_data=emp_details)
+    return redirect(url_for('login'))
+
+
+
+
+
+
