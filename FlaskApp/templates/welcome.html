@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <title>Flask Application - login page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="" rel="stylesheet" media="screen">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Please login</h1>
+      <br>
+      <form action="/login" method="post">
+        <input class="btn btn-default" type="submit" value="Login With Fyle">
+      </form>
+      {% if error %}
+        <p class="error"><strong>Unable to fetch details . Please login Again.</strong> {{ error }}</p>
+      {% endif %}
+    </div>
+  </body>
+</html>
+
